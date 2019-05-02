@@ -1,268 +1,135 @@
-/*
-A Dictionary stores keywords & its meanings. Provide facility for adding new keywords, deleting keywords, updating values of any entry. Provide facility to display whole data sorted in ascending/ Descending order. Also find how many maximum comparisons may require for finding any keyword. Use Binary Search Tree for implementation.
-*/
+#include<iostream>
+#include<cstring>
 
-#include <iostream>
-#include<string.h>
 using namespace std;
 
-struct node{
-	char k[20]; //key
-	char m[20]; //meaning
-	node *lc, *rc;
-}*root;
-
-class DictionaryBST{
-	public:
-		DictionaryBST() //constructor 
-		{
-			root=0;
-		}
-		void create();
-		int search(char *); //calculate number of comparisons
-		void display(node*); //indorder for asc
-		void display_rev(node*);//reverse inorder for desc
-		int update(char *);
-		void del(char *);
-		node * del(node *,char *);
-		node *min(node*);
+class Node{
+public:
+  char key[20],mean[20];
+  Node *left = NULL;
+  Node *right = NULL;
 };
 
-int main()
-{
-	char a;
-	int ch;
-	char x[20];
-	DictionaryBST d;
+class bst{
+public:
+  Node *root=NULL , *newNode;
+  int i=0,n;
+  char delch[20] ,a[15][20],b[15][20];
 
-	do
-	{
-		cout<<"\nMenu\n1.Create\n2.Display\n3.Search\n4.Update\n5.Delete\n6.Add new node\nEnter your choice::";
-		cin>>ch;
-		switch(ch)
-		{
-			case 1:d.create();
-			break;
-			
-			case 6:
-			cout << "Add new item to BST:";			
-			d.create();
-			break;
-			
-			case 2:
-			cout<<"Dictionary Contents: ";
-			cout<<"\n Ascending order :";
-			d.display(root);
-			cout<<"\n Descending order :";
-			d.display_rev(root);
-			break;
-
-			case 3: 
-			cout<<"\nEnter Keyword which u want to search:";
-			cin>>x;
-
-			if( d.search(x) == 1)
-				cout<<"\nKeyword Found";
-			else
-				cout<<"\nKeyword Not Found";
-			break;
-
-			case 4: 
-			cout<<"\nEnter Keyword which meaning  want to update:";
-			cin>>x;
-
-			if(d.update(x) == 1)
-				cout<<"\nMeaning Updated";
-			else
-				cout<<"\nMeaning Not Found";
-			break;
-
-			case 5: 
-			cout<<"\nEnter Keyword which meaning  want to delete:";
-			cin>>x;
-			root = d.del(root,x);
-			cout<<"\n Updated DictionaryBSTtionary ::\n";
-			d.display(root);
-		}//switch
-		cout<<"\n Display Main menu (y/n)??";
-		cin>>a;
-	} while(a=='y');
-	return 0;
-}//end of main
-
-
-void DictionaryBST :: display(node *n)//Ascending order display
-{
-    if(n!=0)
-    {
-        display(n->lc);
-        cout<<"\n Key Word :"<<n->k;
-        cout<<"\t Meaning :"<<n->m;
-        display(n->rc);
+  void create(char key[20], char mean[20]){
+    newNode = new Node;
+    strcpy(newNode->key,key);
+    strcpy(newNode->mean,mean);
+    if(root == NULL)
+      root = newNode;
+    else{
+      insert(root , newNode);
     }
-}
 
-void DictionaryBST :: display_rev(node *n) //desc order (reverse inorder)
-{
-    if(n!=0)
-    {
-        display_rev(n->rc);
-        cout<<"\n Key Word :"<<n->k;
-        cout<<"\t Meaning :"<<n->m;
-        display_rev(n->lc);
+  }
+
+  void insert(Node *r , Node *t){
+    if(strcmp(r->key,t->key) > 0){
+      if(r->left == NULL){
+        r->left = t;
+      }
+      else
+        insert(r->left , t);
     }
-}
+    else if(strcmp(r->key,t->key) < 0){
+      if(r->right == NULL){
+        r->right = t;
+      }
+      else
+        insert(r->right , t);
+    }
+  }
 
+  void display(Node *bt){
+    if(bt!=NULL){
+      display(bt->left);
+      cout<<bt->key<<"\t"<<bt->mean<<endl;
+      display(bt->right);
+    }
+  }
 
-void DictionaryBST :: create()
-{
-	node *temp=0, *r=0; //temp storing node to be added; r is reprenting root
-	char ch='y';
-	while(ch=='y')
-	{
-		temp = new node();
-		//Node data
-		cout<<"\nEnter Keyword: ";
-		cin>>temp->k;
-		cout<<"\nEnter Meaning: ";
-		cin>>temp->m;
-		temp->lc = temp->rc = 0;
+  void del(){
+    i=0;
+    chk(root , root);
+    for (n = 1; n < i; n++) {
+      create(a[n],b[n]);
+    }
+  }
 
-		//Locate the position for temp
-		if(root == 0)
-			root = temp; //set new node as root
-		else{
-			r=root;
-			while(1)
-			{
-				if(strcmp(temp->k,r->k)<0)// new key is less than root
-				{					
-					if(r->lc==0) //empty subtree
-					{
-						r->lc = temp; //add new key
-						break; //inner while - for traversing the levels
-					}
-					else
-						r=r->lc; 				
-				}//end of check in left subtree
+  void chk(Node *r , Node *t){
+    if(r != NULL){
+      if(strcmp(r->key ,delch)==0){
+        if(t->left == r)
+          t->left = NULL;
+        else if(t->right == r)
+          t->right = NULL;
+        else
+          root = NULL;
+        disp(r);
+        return;
+      }
+      chk(r->left ,r);
+      chk(r->right, r);
+    }
+  }
 
-				else if(strcmp(temp->k,r->k)>0)
-				{
-					if( r->rc == 0 ){
-						r->rc = temp;
-						break;
-					}
-					else
-						r = r->rc;				
-				}
-			}//inner while(1)
-		}//else
+  void update(Node *bt){
+    if(bt!=NULL){
+      if(strcmp(bt->key,delch)==0){
+        cout<<"Enter the new meaning for word => "<<bt->key<<endl;
+        cin>>bt->mean;
+        return;
+      }
+      update(bt->left);
+      update(bt->right);
+    }
+  }
 
-		cout<<"Want to add more items(y/n)";
-		cin>>ch;
-    }//outer while
-}//create 
+  void disp(Node *bt){
+    if(bt!=NULL){
+      strcpy(a[i],bt->key);
+      strcpy(b[i],bt->mean);i++;
+      disp(bt->left);
+      disp(bt->right);
+    }
+  }
+};
 
-int DictionaryBST::search(char *temp)
-{
-	node *r;
-	r=root;
-	int c=0; //count
-	while(r != 0)
-	{
-		c++;
-		if(strcmp (temp,r->k) == 0) //Key found
-		{
-			cout<<"\n No of Comparisons:"<<c;
-			return 1;
-		}
-		else if(strcmp (temp, r->k) < 0)
-			r = r->lc;
-		else if (strcmp (temp, r->k) > 0)
-			r = r->rc;
-	}//while
-	return -1;  //unsuccessful search
-}//search
-
-
-int DictionaryBST :: update(char *temp)
-{
-	node *r;
-	r = root;
-
-	while(r != 0)
-	{
-		if(strcmp (temp,r->k) == 0)//Key found for update
-		{
-			cout<<"\nEnter New Meaning of Keyword "<< r->k;
-			cout <<" : ";
-			cin>>r->m;
-			return 1;
-		}
-		if(strcmp (temp, r->k) < 0)
-			r = r->lc;
-		if(strcmp (temp, r->k) > 0)
-			r = r->rc;
-	}//while
-	return -1;  //unsuccessful search
-}//update
-
-node* DictionaryBST :: del(node * r,char temp[20])
-{
-	node *t;
-
-	if(r == 0)
-	{
-		cout<<"\nElement Not Found";
-		return r;
-	}
-
-	if (strcmp(temp,r->k) < 0) //node to be deleted is less than root
-	{
-		r->lc = del(r->lc, temp); //recursive call to del with left child
-		return r;
-	}
-	if (strcmp(temp,r->k) > 0)//node to be deleted is greater than root
-	{
-		r->rc = del(r->rc, temp);//recursive call to del with right child
-		return r;
-	}
-	
-	//code after finding the node to be deleted
-	if (r->lc==0 && r->rc==0) // node is leaf node
-	{
-		t = r;
-		delete t;
-		return 0;  //bcoz r is a leaf node
-	}
-
-	if(r->rc==0) //node to be deleted has only left child
-	{
-		t = r;
-		r = r->lc;
-		delete t;
-		return r;
-	}
-	else if(r->lc==0)  //node to be deleted has only right child
-	{
-		t = r;
-		r = r->rc;
-		delete t;
-		return r;
-	}
-
-	//If not the above cases; node to be deleted has two children
-	t = min(r->rc); //Find minimum value from right subtree
-	strcpy(r->k,t->k); //Replace 
-	r->rc = del(r->rc, t->k);
-	return r;
-}
-
-node * DictionaryBST :: min(node *q)//minimum node
-{
-	while(q->lc != 0)
-	{
-		q = q->lc;
-	}
-	return q;
+int main(){
+  bst obj;
+  char ch,key[20],mean[20];
+  Again:
+  cout<<"\nEnter:\n\t1.Insert\n\t2.Display\n\t3.Update\n\t4.Delete\n\t0.Exit\n";
+  cin>>ch;
+  switch (ch) {
+    case '1':
+      cout<<"Enter word to add to dict and meaning\n";
+      cin>>key>>mean;
+      obj.create(key,mean);
+      goto Again;
+    case '2':
+      obj.display(obj.root);
+      goto Again;
+    case '3':
+      cout<<"Enter word to update\n";
+      cin>>obj.delch;
+      obj.update(obj.root);
+      goto Again;
+    case '4':
+      cout<<"Enter word to delete\n";
+      cin>>obj.delch;
+      obj.del();
+      goto Again;
+    case '0':
+      exit(0);
+    default:
+      cout<<"Wrong Choice\n";
+      goto Again;
+  }
+  return 0;
 }
