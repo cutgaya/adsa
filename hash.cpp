@@ -1,179 +1,99 @@
 #include<iostream>
+#include<cstring>
 using namespace std;
 
-int MAX=10;
-
-class hashing
-{
+class data{
 	public:
-		int id;
-		string name;
+	int ind;
+	char name[20];
 };
 
-class table
-{
+class linear{
 	public:
-		int i;
-		hashing obj[10];
-		void initialize();
-		int hash_fxn(int);
-		void insert_wo(int,string);
-		void insert_w(int,string);
-		void display();
-		table()
-		{
-			for(i=0; i<MAX; i++)
-			{
-				obj[i].id=-1;
-				obj[i].name="-";
-			}
-		}
-};
-
-void table :: initialize()
-{
-	for(i=0; i<MAX; i++)
-	{
-		obj[i].id=-1;
-		obj[i].name="-";
-	}
-}
-	
-int table :: hash_fxn(int key)
-{
-	int value;
-	value=key%MAX;
-	return value;
-}
-
-void table :: insert_wo(int key,string name)
-{
-	int value;
-	value=hash_fxn(key);
-	if(obj[value].id==-1)
-	{
-		obj[value].id = key;
-		obj[value].name = name;
-	}
-	else
-	{
-		for(i=value+1;i<MAX;i++)
-		{
-			int val = i%MAX;
-			if(obj[val].id==-1)
-			{
-				obj[val].id = key;
-				obj[val].name = name;
-				break;
-			}		
+	data arr[10],temp;
+	int i;
+	linear(){
+		for(i=0;i<10;i++){
+			arr[i].ind=-1;
+			strcpy(arr[i].name,"\0");
 		}
 	}
-}
 
-void table :: insert_w(int key, string name)
-{
-	int value;
-	value=hash_fxn(key);
-	if(obj[value].id==-1)
-	{
-		obj[value].id = key;
-		obj[value].name = name;
-	}
-	else if((obj[value].id%MAX)==value)
-	{
-		for(i=value+1;i<MAX;i++)
-		{
-			int val = i%MAX;
-			if(obj[val].id==-1)
-			{
-				obj[val].id = key;
-				obj[val].name = name;
-				break;
-			}		
+	void add(int ind,int roll , char name[]){
+		if(arr[ind % 10].ind==-1){
+			arr[ind % 10].ind=roll;
+			strcpy(arr[ind % 10].name,name);
+			return;
 		}
-	}
-	else 
-	{
-		hashing temp;
-		temp.id = obj[value].id;
-		temp.name = obj[value].name;
-		obj[value].id=key;
-		obj[value].name=name;
-		for(i=value+1;i<MAX;i++)
-		{
-			int val = i%MAX;
-			if(obj[val].id==-1)
-			{
-				obj[val].id = temp.id;
-				obj[val].name = temp.name;
-				break;
-			}		
-		}
-	}
-}		
-
-void table :: display()
-{
-	cout<<"Index	ID	Name"<<endl;
-	for(i=0;i<MAX;i++)
-	{
-		if(obj[i].id!=-1)
-		{
-			if(obj[i].id%MAX == i)
-			{
-				cout<<i<<"	"<<obj[i].id<<"	"<<obj[i].name;
-				cout<<"		present at home address"<<endl;
-			}
-			else
-			{
-				cout<<i<<"	"<<obj[i].id<<"	"<<obj[i].name;
-				cout<<"		not present at home address" <<endl;			
-			}
-		}
-	}
-}
-
-int main()
-{
-	int key,choice;
-	char ch='y';	
-	string name;
-	table obj;
-	while(ch=='y' || ch=='Y')
-	{
-		cout<<"1. Insert with replacement"<<endl;
-		cout<<"2. Insert without replacement"<<endl;
-		cout<<"3. Display"<<endl;
-		cout<<"Enter your choice"<<endl;
-		cin>>choice;
-	
-		switch(choice)
-		{
-			case 1:
-				cout<<"Enter the id"<<endl;
-				cin>>key;
-				cout<<"Enter the name"<<endl;
-				cin>>name;
-				obj.insert_w(key,name);
-				break;
-	
-			case 2:
-				cout<<"Enter the id"<<endl;
-				cin>>key;
-				cout<<"Enter the name"<<endl;
-				cin>>name;
-				obj.insert_wo(key,name);
-				break;
-		
-			case 3:
-				obj.display();
-				break;
+		else if(arr[ind % 10].ind % 10 != ind % 10){
+			temp.ind = arr[ind % 10].ind;
+			strcpy(temp.name,arr[ind % 10].name);
 			
-			default:
-				cout<<"Wrong input"<<endl;
+			arr[ind % 10].ind=roll;
+			strcpy(arr[ind % 10].name,name);
+			
+			roll = temp.ind;
+			strcpy(name,temp.name);
+			
+			ind+=1;
+			add(ind,roll,name);                    
+			                         
+			                         
 		}
-		cout<<"Do you want to continue (y/n)"<<endl;
-		cin>>ch;
+		else{
+			ind+=1;
+			add(ind,roll,name);
+		}
+		
 	}
+	
+	void search(int ind,int roll){
+		if(arr[ind % 10].ind==roll){
+			cout<<"Record Found\n";
+			cout<<arr[ind % 10].ind<<">>"<<arr[ind % 10].name<<endl;
+			return ;
+		}
+		else{
+			ind+=1;
+			search(ind,roll);
+		}
+	}
+	
+	void disp(){
+		for(i=0;i<10;i++){
+			cout<<i<<":  "<<arr[i].ind<<">>"<<arr[i].name<<endl;
+		}
+	}
+};
+
+int main(){
+	
+	linear obj;
+	char ch,name[20];
+	int ind;
+	Again:
+	cout<<"\nEnter:\n1.Add\n2.Search\n3.Dispaly\n0.Exit\n";
+	cin>>ch;
+	switch(ch){
+		case '1':
+			cout<<"Enter index and name\n";
+			cin>>ind>>name;
+			obj.add(ind,ind,name);
+			goto Again;
+		case '2':
+			cout<<"Enter index\n";
+			cin>>ind;
+			obj.search(ind,ind);
+			goto Again;
+		case '3':
+			obj.disp();
+			goto Again;	
+		case '0':
+			break;		
+		default:
+			cout<<"Wrong Choice\n";
+			break;
+	}
+
 	return 0;
 }
